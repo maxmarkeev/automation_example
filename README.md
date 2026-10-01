@@ -87,7 +87,7 @@ pytest --alluredir=allure-results
 allure serve allure-results
 ```
 
-In CI the report is published automatically to GitHub Pages after every push to `main`.
+In CI the report is published automatically to GitHub Pages after every push to `develop`.
 
 ---
 
