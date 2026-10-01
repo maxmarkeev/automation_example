@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Test artifacts
+allure-results/
+allure-report/
+playwright-report/
+test-results/
+.pytest_cache/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Misc
+*.log
+.DS_Store
+
+# Internal project docs (not for public repo)
+AUDIT.md
+CONVENTIONS.md
+CLAUDE.md

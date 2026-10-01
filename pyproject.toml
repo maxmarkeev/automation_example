@@ -1,0 +1,21 @@
+[project]
+name = "automation_example"
+version = "0.1.0"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+addopts = "-v --alluredir=allure-results"
+markers = [
+    "smoke: critical path tests",
+    "regression: full regression suite",
+    "api: API layer tests",
+    "ui: UI layer tests",
+]
+testpaths = ["api/tests", "ui/tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
