@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [develop, main]
   pull_request:
-    branches: [main]
+    branches: [develop, main]
   workflow_dispatch:
 
 env:
@@ -12,8 +12,8 @@ env:
   PYTHONUNBUFFERED: "1"
 
 jobs:
-  api-tests:
-    name: API Tests
+  api-smoke:
+    name: API Smoke
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,8 +26,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run API tests
-        run: pytest -m api --alluredir=allure-results
+      - name: Run API smoke tests
+        run: pytest -m "api and smoke" --alluredir=allure-results
         env:
           BASE_URL: https://automationexercise.com
 
@@ -35,12 +35,40 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-results-api
+          name: allure-results-api-smoke
           path: allure-results/
           if-no-files-found: warn
 
-  ui-tests:
-    name: UI Tests
+  api-regression:
+    name: API Regression
+    runs-on: ubuntu-latest
+    needs: [api-smoke]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run API regression tests
+        run: pytest -m "api and regression" --alluredir=allure-results
+        env:
+          BASE_URL: https://automationexercise.com
+
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-api-regression
+          path: allure-results/
+          if-no-files-found: warn
+
+  ui-smoke:
+    name: UI Smoke
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -56,8 +84,8 @@ jobs:
       - name: Install Playwright browsers
         run: playwright install chromium --with-deps
 
-      - name: Run UI tests
-        run: pytest -m ui --alluredir=allure-results
+      - name: Run UI smoke tests
+        run: pytest -m "ui and smoke" --alluredir=allure-results
         env:
           BASE_URL: https://automationexercise.com
 
@@ -65,32 +93,57 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: allure-results-ui
+          name: allure-results-ui-smoke
+          path: allure-results/
+          if-no-files-found: warn
+
+  ui-regression:
+    name: UI Regression
+    runs-on: ubuntu-latest
+    needs: [ui-smoke]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Playwright browsers
+        run: playwright install chromium --with-deps
+
+      - name: Run UI regression tests
+        run: pytest -m "ui and regression" --alluredir=allure-results
+        env:
+          BASE_URL: https://automationexercise.com
+
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-ui-regression
           path: allure-results/
           if-no-files-found: warn
 
   publish-report:
     name: Publish Allure Report
     runs-on: ubuntu-latest
-    needs: [api-tests, ui-tests]
-    if: always() && github.ref == 'refs/heads/main'
+    needs: [api-smoke, api-regression, ui-smoke, ui-regression]
+    if: always() && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main')
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download API results
+      - name: Download all test results
         uses: actions/download-artifact@v4
         with:
-          name: allure-results-api
+          pattern: allure-results-*
           path: allure-results/
-        continue-on-error: true
-
-      - name: Download UI results
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-results-ui
-          path: allure-results/
+          merge-multiple: true
         continue-on-error: true
 
       - name: Install Allure CLI
