@@ -9,8 +9,8 @@ class BasePage:
     @allure.step("Navigate to {path}")
     def navigate(self, path: str = "/") -> None:
         self.page.goto(path)
-        # networkidle times out on ad-heavy pages; domcontentloaded is sufficient.
-        self.page.wait_for_load_state("domcontentloaded")
+        # networkidle times out on ad-heavy pages; load is sufficient.
+        self.page.wait_for_load_state("load")
         self._dismiss_consent_banner()
 
     def _dismiss_consent_banner(self) -> None:

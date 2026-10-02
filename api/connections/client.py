@@ -26,9 +26,12 @@ class BaseClient:
     def _request(self, method: str, path: str, **kwargs) -> requests.Response:
         url = f"{self._config.base_url}{path}"
         with allure.step(f"{method.upper()} {path}"):
-            response = self._session.request(
-                method, url, timeout=self._config.timeout, **kwargs
-            )
+            for _ in range(3):
+                response = self._session.request(
+                    method, url, timeout=self._config.timeout, **kwargs
+                )
+                if response.text:
+                    break
             allure.attach(
                 response.text,
                 name="response body",
