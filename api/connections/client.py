@@ -15,6 +15,7 @@ class BaseClient:
         session = requests.Session()
         retry = Retry(
             total=3,
+            read=3,
             backoff_factor=1,
             status_forcelist=[429, 500, 502, 503, 504],
         )
