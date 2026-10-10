@@ -34,7 +34,7 @@ class CheckoutPage(BasePage):
         if comment:
             self._comment.fill(comment)
         self._place_order_btn.click()
-        self.page.wait_for_url(re.compile(r"/payment"))
+        self.page.wait_for_url(re.compile(r"/payment"), wait_until="domcontentloaded")
 
     @allure.step("Fill payment form")
     def fill_payment(

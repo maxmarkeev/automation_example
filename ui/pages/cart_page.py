@@ -46,4 +46,4 @@ class CartPage(BasePage):
     def proceed_to_checkout(self) -> None:
         self._proceed_btn.click()
         # Same selector as "Place Order" on /checkout - wait for the navigation before the next step.
-        self.page.wait_for_url(re.compile(r"/checkout"))
+        self.page.wait_for_url(re.compile(r"/checkout"), wait_until="domcontentloaded")

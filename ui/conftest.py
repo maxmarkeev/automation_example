@@ -1,9 +1,10 @@
 import os
+import re
 from collections.abc import Generator
 
 import allure
 import pytest
-from playwright.sync_api import Page
+from playwright.sync_api import BrowserContext, Page
 
 from api.configs.config import load_config
 from api.connections.client import BaseClient
@@ -28,6 +29,20 @@ def browser_type_launch_args(browser_type_launch_args: dict) -> dict:
 @pytest.fixture(scope="session")
 def base_url() -> str:
     return load_config().base_url
+
+
+# Google ads show full-screen "vignette" interstitials on CI runners (datacenter IPs)
+# that hijack link clicks (URL gets #google_vignette) and block navigation.
+AD_HOSTS = re.compile(
+    r"https?://([^/]*\.)?(googlesyndication\.com|doubleclick\.net|googleadservices\.com"
+    r"|adservice\.google\.com|googletagservices\.com|google-analytics\.com|googletagmanager\.com)/"
+)
+
+
+@pytest.fixture
+def context(context: BrowserContext) -> BrowserContext:
+    context.route(AD_HOSTS, lambda route: route.abort())
+    return context
 
 
 @pytest.fixture
