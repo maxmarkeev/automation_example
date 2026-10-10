@@ -44,6 +44,9 @@ class CartPage(BasePage):
 
     @allure.step("Proceed to checkout")
     def proceed_to_checkout(self) -> None:
+        # The button has no href: navigation is a jQuery handler bound by an inline script
+        # at the end of the page, so a click before "load" is silently ignored.
+        self.page.wait_for_load_state("load")
         self._proceed_btn.click()
         # Same selector as "Place Order" on /checkout - wait for the navigation before the next step.
         self.page.wait_for_url(re.compile(r"/checkout"), wait_until="domcontentloaded")

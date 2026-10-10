@@ -1,3 +1,5 @@
+import re
+
 import allure
 from playwright.sync_api import Page
 
@@ -50,6 +52,7 @@ class ProductsPage(BasePage):
     def go_to_cart_from_modal(self) -> None:
         self._modal_view_cart.wait_for(state="visible")
         self._modal_view_cart.click()
+        self.page.wait_for_url(re.compile(r"/view_cart"))
 
     @allure.step("Filter by category: {name}")
     def filter_by_category(self, name: str) -> None:
