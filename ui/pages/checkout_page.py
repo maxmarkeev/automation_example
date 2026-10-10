@@ -1,3 +1,5 @@
+import re
+
 import allure
 from playwright.sync_api import Page
 
@@ -32,7 +34,7 @@ class CheckoutPage(BasePage):
         if comment:
             self._comment.fill(comment)
         self._place_order_btn.click()
-        self.page.wait_for_load_state("load")
+        self.page.wait_for_url(re.compile(r"/payment"))
 
     @allure.step("Fill payment form")
     def fill_payment(

@@ -41,7 +41,7 @@ class TestCheckout:
         payment = PaymentFactory.build()
 
         signup_login_page.open()
-        signup_login_page.login(registered_user_api.email, registered_user_api.password)
+        signup_login_page.login_and_wait(registered_user_api.email, registered_user_api.password)
 
         products_page.open()
         products_page.add_product_to_cart(index=0)
@@ -65,7 +65,7 @@ class TestCheckout:
     @pytest.mark.ui
     def test_delivery_address(self, signup_login_page, products_page, cart_page, checkout_page, registered_user_api):
         signup_login_page.open()
-        signup_login_page.login(registered_user_api.email, registered_user_api.password)
+        signup_login_page.login_and_wait(registered_user_api.email, registered_user_api.password)
 
         products_page.open()
         products_page.add_product_to_cart(index=0)

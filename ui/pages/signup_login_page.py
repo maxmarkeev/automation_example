@@ -13,6 +13,7 @@ class SignupLoginPage(BasePage):
         self._login_password = page.locator('input[data-qa="login-password"]')
         self._login_btn = page.locator('button[data-qa="login-button"]')
         self._login_error = page.locator("p", has_text="Your email or password is incorrect")
+        self._logged_in_as = page.get_by_text("Logged in as")
 
         self._signup_name = page.locator('input[data-qa="signup-name"]')
         self._signup_email = page.locator('input[data-qa="signup-email"]')
@@ -29,6 +30,12 @@ class SignupLoginPage(BasePage):
         self._login_email.fill(email)
         self._login_password.fill(password)
         self._login_btn.click()
+
+    @allure.step("Login with email: {email} and wait for session")
+    def login_and_wait(self, email: str, password: str) -> None:
+        self.login(email, password)
+        # Wait until the server sets the session, otherwise the next goto() can abort the login request.
+        self._logged_in_as.wait_for()
 
     @allure.step("Start signup for: {name}")
     def start_signup(self, name: str, email: str) -> None:
